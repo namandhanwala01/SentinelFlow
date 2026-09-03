@@ -13,21 +13,15 @@ const RecommendationSchema = new Schema(
     recommendations: [
       {
         id: { type: String, required: true },
-        priority: {
-          type: String,
-          enum: ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'],
-          required: true,
-        },
+        priority: { type: String, required: true },
         action: { type: String, required: true },
         reason: { type: String, required: true },
         affectedAsset: { type: String, required: true },
         expectedBenefit: { type: String, required: true },
-        actionCategory: {
-          type: String,
-          enum: ['Firewall', 'IAM', 'EDR', 'Patching', 'Monitoring'],
-          required: true,
-        },
-        simulatedReduction: { type: Number, required: true },
+        actionCategory: { type: String },
+        actionType: { type: String },
+        suggestedTimeframe: { type: String },
+        simulatedReduction: { type: Number },
       },
     ],
     generatedAt: { type: Date, default: Date.now },

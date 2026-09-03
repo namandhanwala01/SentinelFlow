@@ -14,6 +14,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useThreatContext } from '../../context/ThreatContext';
 
 interface ThreatSummaryHeroProps {
   threat: Threat;
@@ -25,6 +26,7 @@ export const ThreatSummaryHero: React.FC<ThreatSummaryHeroProps> = ({
   onSimulateClick,
 }) => {
   const navigate = useNavigate();
+  const { updateThreatStatus } = useThreatContext();
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 sm:p-6 shadow-sm mb-6">
@@ -38,9 +40,19 @@ export const ThreatSummaryHero: React.FC<ThreatSummaryHeroProps> = ({
             <Badge variant="brand" size="sm">
               {threat.confidence}% AI CONFIDENCE
             </Badge>
-            <Badge variant="neutral" size="sm">
-              {threat.status}
-            </Badge>
+            <select
+              value={threat.status}
+              onChange={(e) => {
+                const newStatus = e.target.value as any;
+                updateThreatStatus(threat.id, newStatus);
+              }}
+              className="text-xs font-bold px-2 py-0.5 rounded-md border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+            >
+              <option value="Active">Active</option>
+              <option value="Investigating">Investigating</option>
+              <option value="Contained">Contained</option>
+              <option value="Resolved">Resolved</option>
+            </select>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">

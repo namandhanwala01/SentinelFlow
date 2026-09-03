@@ -30,18 +30,22 @@ export interface ForecastStage {
   stageId: AttackStageId;
   stageName: string;
   probability: number;
-  estimatedTimeWindow: string;
-  indicators: string[];
-  confidence: number;
-  recommendedPreemptiveAction: string;
+  timeWindow?: string;
+  estimatedTimeWindow?: string;
+  keyIndicators?: string[];
+  indicators?: string[];
+  mitreRef?: string;
+  confidenceInterval?: string;
+  confidence?: number;
+  recommendedPreemptiveAction?: string;
 }
 
 export interface ContributingFactor {
   id: string;
   name: string;
-  category: 'Behavioral Anomaly' | 'Identity Risk' | 'Network Pattern' | 'Endpoint Telemetry' | 'Threat Intelligence';
+  category: string;
   weight: number;
-  description: string;
+  description?: string;
   evidence: string;
 }
 
@@ -58,13 +62,15 @@ export interface SimulatedAction {
 
 export interface Recommendation {
   id: string;
-  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'Critical' | 'High' | 'Medium' | 'Low';
   action: string;
   reason: string;
   affectedAsset: string;
   expectedBenefit: string;
-  actionCategory: 'Firewall' | 'IAM' | 'EDR' | 'Patching' | 'Monitoring';
-  simulatedReduction: number;
+  actionCategory?: 'Firewall' | 'IAM' | 'EDR' | 'Patching' | 'Monitoring';
+  actionType?: 'Containment' | 'Hardening' | 'Investigation' | 'Policy' | 'Firewall' | 'IAM' | 'EDR';
+  suggestedTimeframe?: string;
+  simulatedReduction?: number;
 }
 
 export interface Threat {
@@ -98,15 +104,25 @@ export interface Threat {
 export interface MonitoredSystem {
   id: string;
   name: string;
-  ip: string;
-  type: 'Domain Controller' | 'Database Server' | 'Workstation' | 'Web Server' | 'File Server' | 'Cloud Gateway';
+  ip?: string;
+  ipAddress?: string;
+  type:
+    | 'Domain Controller'
+    | 'Database Server'
+    | 'Workstation'
+    | 'Web Server'
+    | 'File Server'
+    | 'Cloud Gateway'
+    | 'Mail Server';
   os: string;
   status: 'Healthy' | 'At Risk' | 'Critical';
   riskScore: number;
   activeThreatsCount: number;
   lastSeen: string;
   assignedThreatId?: string;
-  agentVersion: string;
+  agentVersion?: string;
+  environment?: 'Production' | 'Staging' | 'Corporate' | 'DMZ';
+  department?: string;
 }
 
 export interface SecurityEvent {
@@ -150,3 +166,4 @@ export interface SimulationResponse {
   disclaimer: string;
   analysis: string;
 }
+

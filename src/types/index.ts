@@ -136,3 +136,20 @@ export interface MetricSummary {
   overallRiskScore: number;
   riskScoreChange: number; // e.g. +4
 }
+
+export interface SimulationRequest {
+  threatId?: string;
+  baseRiskScore?: number;
+  actionIds: string[];
+}
+
+export interface SimulationResponse {
+  baselineRiskScore: number;
+  projectedRiskScore: number;
+  totalRiskReductionPercent: number;
+  appliedActions: SimulatedAction[];
+  isSimulationOnly: boolean;
+  disclaimer: string;
+  analysis: string;
+}
+

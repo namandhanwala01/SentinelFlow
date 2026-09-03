@@ -9,18 +9,37 @@ export let isMongoConnected = false;
 
 export async function connectDatabase(): Promise<boolean> {
   if (!config.mongodbUri) {
-    console.warn('[Database] MONGODB_URI not configured. Using in-memory fallback store.');
+    console.warn('[Database] MONGODB_URI not configured. Using SentinelFlow High-Performance In-Memory store.');
     isMongoConnected = false;
     return false;
   }
 
+  // Setup connection event listeners
+  mongoose.connection.on('connected', () => {
+    isMongoConnected = true;
+    console.log('[Database] 🟢 Mongoose connection active.');
+  });
+
+  mongoose.connection.on('disconnected', () => {
+    isMongoConnected = false;
+    console.warn('[Database] 🟡 Mongoose disconnected.');
+  });
+
+  mongoose.connection.on('error', (err) => {
+    isMongoConnected = false;
+    console.error('[Database] 🔴 Mongoose connection error:', err.message);
+  });
+
   try {
-    console.log(`[Database] Attempting connection to MongoDB (${config.mongodbUri})...`);
+    const isAtlas = config.mongodbUri.includes('mongodb+srv://');
+    console.log(`[Database] Attempting connection to MongoDB ${isAtlas ? 'Atlas Cloud Cluster' : 'Instance'}...`);
     mongoose.set('strictQuery', false);
 
     await mongoose.connect(config.mongodbUri, {
-      serverSelectionTimeoutMS: 4000,
-      connectTimeoutMS: 4000,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+      retryWrites: true,
+      w: 'majority',
     });
 
     isMongoConnected = true;
@@ -34,7 +53,7 @@ export async function connectDatabase(): Promise<boolean> {
     console.warn(
       `[Database] ⚠️ MongoDB connection could not be established (${error.message}).\n` +
       `[Database] Initializing SentinelFlow High-Performance In-Memory Store as safe fallback.\n` +
-      `[Database] To use live MongoDB, verify your local mongod service or update MONGODB_URI in .env.`
+      `[Database] To use live MongoDB Atlas, set MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/sentinelflow in .env.`
     );
     return false;
   }

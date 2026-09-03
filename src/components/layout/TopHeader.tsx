@@ -7,9 +7,11 @@ import {
   User,
   Check,
   ExternalLink,
+  FlaskConical,
 } from 'lucide-react';
 import { useThreatContext } from '../../context/ThreatContext';
 import { useNavigate } from 'react-router-dom';
+import { ScenarioTriggerModal } from '../simulator/ScenarioTriggerModal';
 
 interface TopHeaderProps {
   onMenuToggle: () => void;
@@ -18,6 +20,7 @@ interface TopHeaderProps {
 export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuToggle }) => {
   const { searchQuery, setSearchQuery, selectedThreat, setSelectedThreatId } = useThreatContext();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [simulatorOpen, setSimulatorOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
   const notifRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -97,14 +100,24 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuToggle }) => {
 
       {/* Right: SOC Status, Notifications, User profile */}
       <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+        {/* Attack Simulator Trigger Button */}
+        <button
+          type="button"
+          onClick={() => setSimulatorOpen(true)}
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-all shadow-xs cursor-pointer"
+        >
+          <FlaskConical className="h-4 w-4 text-indigo-600 animate-pulse" />
+          <span>Attack Simulator</span>
+        </button>
+
         {/* System Health Badge */}
-        <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-800">
+        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-800">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>SOC ENGINE ONLINE</span>
         </div>
 
         {/* Active Threat Quick Tag */}
-        <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200 text-xs text-indigo-900 font-medium">
+        <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-xs text-slate-800 font-medium">
           <ShieldCheck className="h-3.5 w-3.5 text-indigo-600" />
           <span>Context:</span>
           <strong className="text-slate-900 truncate max-w-[120px]">{selectedThreat.name}</strong>
@@ -196,6 +209,13 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onMenuToggle }) => {
           </div>
         </div>
       </div>
+
+      {/* Simulator Modal */}
+      <ScenarioTriggerModal
+        isOpen={simulatorOpen}
+        onClose={() => setSimulatorOpen(false)}
+      />
     </header>
   );
 };
+

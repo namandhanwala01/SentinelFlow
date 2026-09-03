@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: sentinelflow-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: AI_FORECAST_SENSITIVITY
+        value: "0.75"
+      - key: AI_MIN_CONFIDENCE_THRESHOLD
+        value: "0.60"
+      - key: SIMULATOR_TICK_INTERVAL_MS
+        value: "3000"

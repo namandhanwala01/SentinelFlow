@@ -31,12 +31,27 @@ const ForecastStageSchema = new Schema(
     stageId: { type: String, required: true },
     stageName: { type: String, required: true },
     probability: { type: Number, required: true },
-    estimatedTimeWindow: { type: String, required: true },
+    timeWindow: { type: String },
+    estimatedTimeWindow: { type: String },
+    keyIndicators: [{ type: String }],
     indicators: [{ type: String }],
-    confidence: { type: Number, required: true },
-    recommendedPreemptiveAction: { type: String, required: true },
+    mitreRef: { type: String },
+    confidenceInterval: { type: String },
+    confidence: { type: Number },
+    recommendedPreemptiveAction: { type: String },
   },
-  { _id: false }
+  {
+    _id: false,
+    toJSON: {
+      transform: (_, ret) => {
+        if (!ret.timeWindow && ret.estimatedTimeWindow) ret.timeWindow = ret.estimatedTimeWindow;
+        if (!ret.estimatedTimeWindow && ret.timeWindow) ret.estimatedTimeWindow = ret.timeWindow;
+        if (!ret.keyIndicators && ret.indicators) ret.keyIndicators = ret.indicators;
+        if (!ret.indicators && ret.keyIndicators) ret.indicators = ret.keyIndicators;
+        return ret;
+      },
+    },
+  }
 );
 
 const ContributingFactorSchema = new Schema(
@@ -45,7 +60,7 @@ const ContributingFactorSchema = new Schema(
     name: { type: String, required: true },
     category: { type: String, required: true },
     weight: { type: Number, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     evidence: { type: String, required: true },
   },
   { _id: false }
@@ -56,7 +71,7 @@ const SimulatedActionSchema = new Schema(
     id: { type: String, required: true },
     name: { type: String, required: true },
     description: { type: String, required: true },
-    category: { type: String, enum: ['Network', 'Identity', 'Host', 'Policy'], required: true },
+    category: { type: String, required: true },
     riskReductionPercent: { type: Number, required: true },
     predictedRiskScore: { type: Number, required: true },
     impactAnalysis: { type: String, required: true },
@@ -68,17 +83,15 @@ const SimulatedActionSchema = new Schema(
 const RecommendationSchema = new Schema(
   {
     id: { type: String, required: true },
-    priority: { type: String, enum: ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'], required: true },
+    priority: { type: String, required: true },
     action: { type: String, required: true },
     reason: { type: String, required: true },
     affectedAsset: { type: String, required: true },
     expectedBenefit: { type: String, required: true },
-    actionCategory: {
-      type: String,
-      enum: ['Firewall', 'IAM', 'EDR', 'Patching', 'Monitoring'],
-      required: true,
-    },
-    simulatedReduction: { type: Number, required: true },
+    actionCategory: { type: String },
+    actionType: { type: String },
+    suggestedTimeframe: { type: String },
+    simulatedReduction: { type: Number },
   },
   { _id: false }
 );

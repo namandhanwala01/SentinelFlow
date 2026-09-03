@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useThreatContext } from '../context/ThreatContext';
 import { PageHeader } from '../components/common/PageHeader';
 import { EventStreamTable } from '../components/events/EventStreamTable';
 import { Button } from '../components/common/Button';
-import { Activity, Radio, RefreshCw } from 'lucide-react';
+import { ScenarioTriggerModal } from '../components/simulator/ScenarioTriggerModal';
+import { Radio, RefreshCw, FlaskConical } from 'lucide-react';
 
 export const EventsPage: React.FC = () => {
-  const { events, isLiveMonitoring, setIsLiveMonitoring } = useThreatContext();
+  const { events, isLiveMonitoring, setIsLiveMonitoring, refreshTelemetry, isLoading } = useThreatContext();
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -22,6 +24,22 @@ export const EventsPage: React.FC = () => {
         actions={
           <div className="flex items-center gap-2">
             <Button
+              variant="outline"
+              size="sm"
+              icon={<FlaskConical className="h-3.5 w-3.5 text-indigo-600" />}
+              onClick={() => setIsSimulatorOpen(true)}
+            >
+              Inject Scenario
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<RefreshCw className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+              onClick={() => refreshTelemetry()}
+            >
+              Refresh
+            </Button>
+            <Button
               variant={isLiveMonitoring ? 'primary' : 'outline'}
               size="sm"
               onClick={() => setIsLiveMonitoring((prev) => !prev)}
@@ -34,6 +52,12 @@ export const EventsPage: React.FC = () => {
       />
 
       <EventStreamTable events={events} />
+
+      <ScenarioTriggerModal
+        isOpen={isSimulatorOpen}
+        onClose={() => setIsSimulatorOpen(false)}
+      />
     </div>
   );
 };
+

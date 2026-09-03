@@ -9,7 +9,8 @@ const MonitoredSystemSchema = new Schema(
   {
     id: { type: String, required: true, unique: true, index: true },
     name: { type: String, required: true },
-    ip: { type: String, required: true },
+    ip: { type: String, default: '10.0.0.1' },
+    ipAddress: { type: String, default: '10.0.0.1' },
     type: {
       type: String,
       enum: [
@@ -19,6 +20,7 @@ const MonitoredSystemSchema = new Schema(
         'Web Server',
         'File Server',
         'Cloud Gateway',
+        'Mail Server',
       ],
       required: true,
     },
@@ -33,7 +35,13 @@ const MonitoredSystemSchema = new Schema(
     activeThreatsCount: { type: Number, default: 0 },
     lastSeen: { type: String, required: true },
     assignedThreatId: { type: String },
-    agentVersion: { type: String, required: true },
+    agentVersion: { type: String, default: 'v4.2.1-prod' },
+    environment: {
+      type: String,
+      enum: ['Production', 'Staging', 'Corporate', 'DMZ'],
+      default: 'Production',
+    },
+    department: { type: String, default: 'Core Infrastructure' },
   },
   {
     timestamps: true,
@@ -41,6 +49,8 @@ const MonitoredSystemSchema = new Schema(
       transform: (_, ret) => {
         delete (ret as any)._id;
         delete (ret as any).__v;
+        if (!ret.ipAddress && ret.ip) ret.ipAddress = ret.ip;
+        if (!ret.ip && ret.ipAddress) ret.ip = ret.ipAddress;
         return ret;
       },
     },
