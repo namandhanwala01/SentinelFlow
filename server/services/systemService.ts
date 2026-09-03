@@ -1,6 +1,6 @@
 import { MonitoredSystem } from '../types';
 import { MonitoredSystemModel } from '../models/MonitoredSystem';
-import { isMongoConnected } from '../config/database';
+import { isDatabaseConnected } from '../config/database';
 import { seedSystems } from '../seed/seedData';
 
 class SystemService {
@@ -11,7 +11,7 @@ class SystemService {
     type?: string;
     search?: string;
   }): Promise<MonitoredSystem[]> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         const query: any = {};
         if (filters?.status && filters.status !== 'ALL') query.status = filters.status;
@@ -29,7 +29,7 @@ class SystemService {
           return docs as unknown as MonitoredSystem[];
         }
       } catch (err: any) {
-        console.warn('[SystemService] Mongo query error:', err.message);
+        console.error('[SystemService] Mongo query error:', err.message);
       }
     }
 
@@ -47,12 +47,12 @@ class SystemService {
   }
 
   public async getSystemById(id: string): Promise<MonitoredSystem | null> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         const doc = await MonitoredSystemModel.findOne({ id }).lean();
         if (doc) return doc as unknown as MonitoredSystem;
       } catch (err: any) {
-        console.warn('[SystemService] Mongo findOne error:', err.message);
+        console.error('[SystemService] Mongo findOne error:', err.message);
       }
     }
     const found = this.inMemorySystems.find((s) => s.id === id);

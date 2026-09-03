@@ -1,6 +1,6 @@
 import { SecurityEvent } from '../types';
 import { SecurityEventModel } from '../models/SecurityEvent';
-import { isMongoConnected } from '../config/database';
+import { isDatabaseConnected } from '../config/database';
 import { seedEvents } from '../seed/seedData';
 
 class EventService {
@@ -17,7 +17,7 @@ class EventService {
     const page = filters?.page || 1;
     const limit = filters?.limit || 50;
 
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         const query: any = {};
         if (filters?.severity && filters.severity !== 'ALL') query.severity = filters.severity;
@@ -49,7 +49,7 @@ class EventService {
           };
         }
       } catch (err: any) {
-        console.warn('[EventService] Mongo query error:', err.message);
+        console.error('[EventService] Mongo query error:', err.message);
       }
     }
 
@@ -80,12 +80,12 @@ class EventService {
   }
 
   public async getEventById(id: string): Promise<SecurityEvent | null> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         const doc = await SecurityEventModel.findOne({ id }).lean();
         if (doc) return doc as unknown as SecurityEvent;
       } catch (err: any) {
-        console.warn('[EventService] Mongo findOne error:', err.message);
+        console.error('[EventService] Mongo findOne error:', err.message);
       }
     }
     const found = this.inMemoryEvents.find((e) => e.id === id);
@@ -93,11 +93,11 @@ class EventService {
   }
 
   public async createEvent(event: SecurityEvent): Promise<SecurityEvent> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         await SecurityEventModel.create(event);
       } catch (err: any) {
-        console.warn('[EventService] Mongo create error:', err.message);
+        console.error('[EventService] Mongo create error:', err.message);
       }
     }
 

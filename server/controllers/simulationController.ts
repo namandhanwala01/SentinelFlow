@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { threatService } from '../services/threatService';
 import { WhatIfSimulationEngine } from '../services/ai/whatIfEngine';
 import { SimulationResultModel } from '../models/SimulationResult';
-import { isMongoConnected } from '../config/database';
+import { isDatabaseConnected } from '../config/database';
 
 export const runSimulation = async (req: Request, res: Response) => {
   try {
@@ -24,7 +24,7 @@ export const runSimulation = async (req: Request, res: Response) => {
     const result = WhatIfSimulationEngine.simulate(baseline, actionIds || [], availableActions);
 
     // Save simulation audit record if Mongo is connected
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         await SimulationResultModel.create({
           threatId,
@@ -34,7 +34,7 @@ export const runSimulation = async (req: Request, res: Response) => {
           appliedActions: result.appliedActions,
         });
       } catch (logErr: any) {
-        // Non-blocking log error
+        console.error('[SimulationController] Mongo audit log error:', logErr.message);
       }
     }
 

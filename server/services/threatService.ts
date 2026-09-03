@@ -1,6 +1,6 @@
 import { Threat, MetricSummary, ThreatStatus } from '../types';
 import { ThreatModel } from '../models/Threat';
-import { isMongoConnected } from '../config/database';
+import { isDatabaseConnected } from '../config/database';
 import { seedThreats } from '../seed/seedData';
 
 class ThreatService {
@@ -13,7 +13,7 @@ class ThreatService {
     stage?: string;
     search?: string;
   }): Promise<Threat[]> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         const query: any = {};
         if (filters?.risk && filters.risk !== 'ALL') query.risk = filters.risk;
@@ -33,7 +33,7 @@ class ThreatService {
           return docs as unknown as Threat[];
         }
       } catch (err: any) {
-        console.warn('[ThreatService] MongoDB query fallback to in-memory:', err.message);
+        console.error('[ThreatService] MongoDB query error:', err.message);
       }
     }
 
@@ -55,12 +55,12 @@ class ThreatService {
   }
 
   public async getThreatById(id: string): Promise<Threat | null> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         const doc = await ThreatModel.findOne({ id }).lean();
         if (doc) return doc as unknown as Threat;
       } catch (err: any) {
-        console.warn('[ThreatService] Mongo findOne error:', err.message);
+        console.error('[ThreatService] Mongo findOne error:', err.message);
       }
     }
     const found = this.inMemoryThreats.find((t) => t.id === id);
@@ -68,7 +68,7 @@ class ThreatService {
   }
 
   public async updateThreatStatus(id: string, status: ThreatStatus): Promise<Threat | null> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         const updated = await ThreatModel.findOneAndUpdate(
           { id },
@@ -77,7 +77,7 @@ class ThreatService {
         ).lean();
         if (updated) return updated as unknown as Threat;
       } catch (err: any) {
-        console.warn('[ThreatService] Mongo update error:', err.message);
+        console.error('[ThreatService] Mongo update error:', err.message);
       }
     }
 
@@ -90,11 +90,11 @@ class ThreatService {
   }
 
   public async upsertThreat(threat: Threat): Promise<Threat> {
-    if (isMongoConnected) {
+    if (isDatabaseConnected()) {
       try {
         await ThreatModel.findOneAndUpdate({ id: threat.id }, threat, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
-        console.warn('[ThreatService] Mongo upsert error:', err.message);
+        console.error('[ThreatService] Mongo upsert error:', err.message);
       }
     }
 

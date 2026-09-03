@@ -7,6 +7,10 @@ import { seedThreats, seedSystems, seedEvents } from '../seed/seedData';
 
 export let isMongoConnected = false;
 
+export function isDatabaseConnected(): boolean {
+  return mongoose.connection.readyState === 1;
+}
+
 export async function connectDatabase(): Promise<boolean> {
   if (!config.mongodbUri) {
     console.warn('[Database] MONGODB_URI not configured. Using SentinelFlow High-Performance In-Memory store.');
