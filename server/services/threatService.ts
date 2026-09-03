@@ -73,7 +73,7 @@ class ThreatService {
         const updated = await ThreatModel.findOneAndUpdate(
           { id },
           { $set: { status } },
-          { new: true }
+          { returnDocument: 'after' }
         ).lean();
         if (updated) return updated as unknown as Threat;
       } catch (err: any) {
@@ -92,7 +92,7 @@ class ThreatService {
   public async upsertThreat(threat: Threat): Promise<Threat> {
     if (isMongoConnected) {
       try {
-        await ThreatModel.findOneAndUpdate({ id: threat.id }, threat, { upsert: true, new: true });
+        await ThreatModel.findOneAndUpdate({ id: threat.id }, threat, { upsert: true, returnDocument: 'after' });
       } catch (err: any) {
         console.warn('[ThreatService] Mongo upsert error:', err.message);
       }
